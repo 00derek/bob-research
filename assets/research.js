@@ -4,7 +4,7 @@
   const rows = [...table.tBodies[0].rows];
   const search = document.querySelector('#search'), signal = document.querySelector('#signal');
   [...new Set(rows.map(r => r.dataset.signal))].sort().forEach(value => {
-    if (![...signal.options].some(option => option.value === value)) signal.add(new Option(value, value));
+    if (value) signal.add(new Option(value.replaceAll('_', ' '), value));
   });
   function filter() {
     const query = search.value.trim().toLowerCase();
@@ -13,10 +13,26 @@
   }
   search.addEventListener('input', filter); signal.addEventListener('change', filter); filter();
   table.querySelectorAll('[data-sort]').forEach(button => button.addEventListener('click', () => {
-    const column = Number(button.dataset.sort), direction = button.dataset.direction === 'asc' ? -1 : 1;
-    button.dataset.direction = direction === 1 ? 'asc' : 'desc';
-    table.querySelectorAll('th').forEach(th => th.removeAttribute('aria-sort'));
-    button.parentElement.setAttribute('aria-sort', direction === 1 ? 'ascending' : 'descending');
-    rows.sort((a,b) => direction * a.cells[column].textContent.localeCompare(b.cells[column].textContent)).forEach(row => table.tBodies[0].append(row));
+    const column = Number(button.dataset.sort);
+    const order = button.dataset.direction ? (button.dataset.direction === 'asc' ? 'desc' : 'asc') : (button.dataset.initialDirection || 'asc');
+    const direction = order === 'asc' ? 1 : -1;
+    table.querySelectorAll('[data-sort]').forEach(other => {
+      delete other.dataset.direction;
+      other.parentElement.removeAttribute('aria-sort');
+      other.querySelector('[data-sort-indicator]').textContent = '↕';
+    });
+    button.dataset.direction = order;
+    button.parentElement.setAttribute('aria-sort', order === 'asc' ? 'ascending' : 'descending');
+    button.querySelector('[data-sort-indicator]').textContent = order === 'asc' ? '↑' : '↓';
+    rows.sort((a, b) => {
+      if (button.dataset.sortType === 'number') {
+        const left = Number.parseFloat(a.cells[column].textContent), right = Number.parseFloat(b.cells[column].textContent);
+        if (!Number.isFinite(left) && !Number.isFinite(right)) return a.cells[0].textContent.localeCompare(b.cells[0].textContent);
+        if (!Number.isFinite(left)) return 1;
+        if (!Number.isFinite(right)) return -1;
+        return direction * (left - right) || a.cells[0].textContent.localeCompare(b.cells[0].textContent);
+      }
+      return direction * a.cells[column].textContent.localeCompare(b.cells[column].textContent);
+    }).forEach(row => table.tBodies[0].append(row));
   }));
 })();
