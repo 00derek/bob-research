@@ -1,0 +1,16 @@
+{{ define "main" }}
+<div class="page-heading"><h1>Research desk</h1><span class="muted">{{ len (where site.RegularPages "Section" "research") }} dated reports</span></div>
+<div class="intro">{{ .Content }}</div>
+<div class="toolbar"><label for="search">Find ticker <input id="search" type="search" placeholder="Ticker or company" autocomplete="off"></label>
+<label for="signal">Signal <select id="signal"><option value="">All</option><option>WATCH</option><option>HOLD</option><option>AVOID</option><option>EXIT</option><option>PENDING_REFRESH</option><option>BUY_STARTER</option><option>ADD</option></select></label><span id="count" aria-live="polite"></span></div>
+<div class="table-scroll"><table id="research-table"><thead><tr><th><button data-sort="0">Ticker ↕</button></th><th>Signal</th><th class="number">Price</th><th class="number secondary">Fair value</th><th class="number secondary">Conviction</th><th>Evidence</th><th><button data-sort="6">Analysis date ↕</button></th></tr></thead><tbody>
+{{ with site.GetPage "/research" }}{{ range .Sections.ByTitle }}{{ $latest := index (sort .RegularPages "Params.report_order" "desc") 0 }}{{ with $latest }}
+<tr data-signal="{{ .Params.security_signal }}"><td><a class="ticker" href="{{ .Parent.RelPermalink }}">{{ .Params.ticker }}</a><span class="company">{{ .Title }}</span></td>
+<td><span class="signal {{ if eq .Params.security_signal "PENDING_REFRESH" }}warning{{ end }}">{{ replace .Params.security_signal "_" " " }}</span></td>
+<td class="number">{{ with .Params.price }}${{ printf "%.2f" (float .) }}{{ else }}—{{ end }}</td>
+<td class="number secondary">{{ if and (eq .Params.instrument_type "OPERATING_COMPANY") (not (hasPrefix (string .Params.probability_weighted_fv) "N/A")) }}${{ .Params.probability_weighted_fv }}{{ else }}—{{ end }}</td>
+<td class="number secondary">{{ if eq .Params.instrument_type "OPERATING_COMPANY" }}{{ if hasPrefix (string .Params.conviction_score) "N/A" }}—{{ else }}{{ .Params.conviction_score }}{{ end }}{{ else }}Fund{{ end }}</td>
+<td class="muted">{{ if eq .Params.evidence_status "INCOMPLETE" }}Refresh needed{{ else }}See caveats{{ end }}</td><td class="date">{{ .Date.Format "2006-01-02" }}</td></tr>
+{{ end }}{{ end }}{{ end }}
+</tbody></table></div>
+{{ end }}

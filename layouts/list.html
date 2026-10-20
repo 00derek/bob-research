@@ -1,0 +1,7 @@
+{{ define "main" }}
+{{ if and (eq .Section "research") (ne .RelPermalink (("research/" | relURL))) }}
+{{ $reports := sort .RegularPages "Params.report_order" "desc" }}
+{{ with index $reports 0 }}{{ partial "report.html" . }}{{ end }}
+<section class="history"><h2>Report history</h2><ul>{{ range $reports }}<li><a href="{{ .RelPermalink }}">{{ .Date.Format "2006-01-02" }} · {{ .Params.report_id }}</a></li>{{ end }}</ul></section>
+{{ else }}<h1>{{ .Title }}</h1>{{ .Content }}<ul>{{ range .Pages }}<li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>{{ end }}</ul>{{ end }}
+{{ end }}

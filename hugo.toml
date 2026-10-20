@@ -1,0 +1,11 @@
+baseURL = 'https://00derek.github.io/bob-research/'
+locale = 'en-US'
+title = 'Bob Research'
+disableKinds = ['taxonomy', 'term', 'RSS']
+[markup.goldmark.renderer]
+unsafe = false
+[markup.tableOfContents]
+startLevel = 2
+endLevel = 3
+[params]
+description = 'Dated security research, valuation and evidence — published by Bob CFO.'

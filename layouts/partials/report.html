@@ -1,0 +1,16 @@
+<div class="page-heading"><div><a class="back" href="{{ site.Home.RelPermalink }}">← Research desk</a><h1>{{ .Title }}</h1></div><span class="signal">{{ replace .Params.security_signal "_" " " }}</span></div>
+<div class="facts"><span>Analysis <strong>{{ .Date.Format "2006-01-02" }}</strong></span><span>Price <strong>{{ with .Params.price }}${{ printf "%.2f" (float .) }}{{ else }}Unavailable{{ end }}</strong> <small>{{ .Params.price_as_of }}</small></span>
+{{ if eq .Params.instrument_type "OPERATING_COMPANY" }}<span>Conviction <strong>{{ .Params.conviction_score }}</strong></span><span>Valuation <strong>{{ .Params.valuation_score }}</strong></span>{{ else }}<span>Vehicle integrity <strong>{{ .Params.vehicle_integrity_gate }}</strong></span><span>Look-through <strong>{{ .Params.lookthrough_valuation_status }}</strong></span>{{ end }}</div>
+<p class="notice">{{ .Params.publication_note }} {{ if eq .Params.evidence_status "INCOMPLETE" }}<strong>Refresh required: do not treat the old model as current.</strong>{{ end }}</p>
+{{ with .Params.evidence_notes }}<div class="notice"><strong>Evidence issues to resolve</strong><ul>{{ range . }}<li>{{ . }}</li>{{ end }}</ul></div>{{ end }}
+<div class="report-layout"><aside aria-label="Report sections">{{ .TableOfContents }}<a href="{{ .Permalink }}">Dated permalink ↗</a><p>{{ .Params.framework_version }}</p></aside><article class="prose">
+<section class="decision-brief"><h2>Decision in brief</h2><ul>
+<li><strong>{{ replace .Params.security_signal "_" " " }}</strong> · Thesis: {{ replace .Params.thesis_status "_" " " }} · Event risk: {{ .Params.binary_event_risk }}.</li>
+{{ if eq .Params.instrument_type "OPERATING_COMPANY" }}<li>Quality gate: {{ .Params.business_quality_gate }} · Credibility: {{ .Params.credibility_risk_gate }} · Reverse valuation: {{ .Params.reverse_valuation_gate }}.</li>
+<li>Analytical starter zone: {{ .Params.starter_zone }} · Add zone: {{ .Params.add_zone }} · Planning close-stop: {{ .Params.tactical_stop }}. Levels are conditional research, not standing orders.</li>
+{{ else }}<li>Vehicle: {{ replace .Params.instrument_type "_" " " }} · Integrity: {{ .Params.vehicle_integrity_gate }} · Look-through: {{ .Params.lookthrough_valuation_status }}.</li>{{ end }}</ul></section>
+{{ if and (eq .Params.instrument_type "OPERATING_COMPANY") (not (hasPrefix (string .Params.probability_weighted_fv) "N/A")) }}
+<section class="valuation"><h2>Valuation snapshot</h2><p class="muted">Model date: {{ .Params.valuation_as_of }} · Weighted fair value: ${{ .Params.probability_weighted_fv }}</p>
+<table><thead><tr><th>Scenario</th><th class="number">Probability</th><th class="number">Fair value</th></tr></thead><tbody>
+{{ $p := .Params }}{{ range slice "bear" "base" "bull" }}<tr><td>{{ title . }}</td><td class="number">{{ index $p (printf "%s_probability" .) }}%</td><td class="number">${{ index $p (printf "%s_fv" .) }}</td></tr>{{ end }}</tbody></table></section>{{ end }}
+{{ .Content }}</article></div>
