@@ -1,5 +1,12 @@
 {
-  "title": "VOO"
+  "title": "VOO",
+  "params": {
+    "sidebar": {
+      "exclude": true
+    }
+  }
 }
+
+
 
 

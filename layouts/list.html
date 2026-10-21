@@ -1,7 +1,8 @@
 {{ define "main" }}
-{{ if and (eq .Section "research") (ne .RelPermalink (("research/" | relURL))) }}
 {{ $reports := sort .RegularPages "Params.report_order" "desc" }}
-{{ with index $reports 0 }}{{ partial "report.html" . }}{{ end }}
-<section class="history"><h2>Report history</h2><ul>{{ range $reports }}<li><a href="{{ .RelPermalink }}">{{ .Date.Format "2006-01-02" }} · {{ .Params.report_id }}</a></li>{{ end }}</ul></section>
-{{ else }}<h1>{{ .Title }}</h1>{{ .Content }}<ul>{{ range .Pages }}<li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>{{ end }}</ul>{{ end }}
+{{ with index $reports 0 }}
+<div class="reading-layout hextra-max-page-width">{{ partial "toc.html" . }}<main id="content" class="report-main">{{ partial "report.html" . }}
+<section class="report-history"><h2>Research history</h2>{{ if ne .Params.instrument_type "OPERATING_COMPANY" }}<p class="muted">Historical fund research. This vehicle is outside current stock-only coverage.</p>{{ end }}<p class="muted">Each revision preserves its original research date. A publication revision does not refresh the underlying evidence.</p><ul>{{ range $reports }}<li><a href="{{ .RelPermalink }}">{{ .Date.Format "02 Jan 2006" }} <span>{{ if .Params.report_format }}Framework report{{ else }}Original publication{{ end }}</span></a></li>{{ end }}</ul></section>
+</main></div>
+{{ else }}<main id="content" class="research-desk"><h1>Research</h1><a href="{{ site.Home.RelPermalink }}">Explore the research library →</a></main>{{ end }}
 {{ end }}

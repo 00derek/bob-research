@@ -1,10 +1,18 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{ .Title }} · Bob Research</title><meta name="description" content="{{ site.Params.description }}">
-{{ $css := resources.Get "research.css" | fingerprint }}<link rel="stylesheet" href="{{ $css.RelPermalink }}">
-<link rel="canonical" href="{{ .Permalink }}"></head>
-<body><header class="topbar"><a class="brand" href="{{ site.Home.RelPermalink }}">BOB <span>RESEARCH</span></a>
-<nav aria-label="Main"><a href="{{ site.Home.RelPermalink }}">Tickers</a><a href="{{ "framework/" | relURL }}">Framework</a><a href="https://github.com/00derek/bob-research">Markdown ↗</a></nav></header>
-<main>{{ block "main" . }}{{ end }}</main>
-<footer>Bob Research · Dated evidence, not live quotes or personalized advice. Publication does not refresh analysis. <a href="{{ "framework/" | relURL }}">Methodology</a></footer>
-{{ $js := resources.Get "research.js" | fingerprint }}<script src="{{ $js.RelPermalink }}" defer></script></body></html>
+<!DOCTYPE html>
+<html lang="{{ .Site.Language.Lang }}" dir="{{ partial "utils/hugo-compat/language-direction.html" .Site.Language | default `ltr` }}">
+  {{- partial "head.html" . -}}
+  <body>
+    <a href="#content" class="hx:sr-only hx:focus-visible:not-sr-only hx:focus-visible:fixed hx:focus-visible:z-50 hx:focus-visible:top-2 hx:focus-visible:left-2 hx:focus-visible:bg-primary-500 hx:focus-visible:text-white hx:focus-visible:px-4 hx:focus-visible:py-2 hx:focus-visible:rounded-md hx:focus-visible:text-sm hx:focus-visible:font-medium">
+      {{- (T "skipToContent") | default "Skip to content" -}}
+    </a>
+    {{- partial "banner.html" . -}}
+    {{- partial "navbar.html" . -}}
+    {{- partial "sidebar.html" (dict "context" . "disableSidebar" true "displayPlaceholder" false) -}}
+    {{- block "main" . }}{{ end -}}
+    {{- if or (eq .Site.Params.footer.enable nil) (.Site.Params.footer.enable) }}
+      {{ partial "footer.html" . }}
+    {{ end }}
+    {{ partial "components/search-dialog.html" . }}
+    {{ partial "scripts.html" . }}
+  </body>
+</html>

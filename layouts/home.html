@@ -1,15 +1,35 @@
 {{ define "main" }}
-<div class="page-heading"><h1>Research desk</h1><span class="muted">{{ len (where site.RegularPages "Section" "research") }} dated reports</span></div>
-<div class="intro">{{ .Content }}</div>
-<div class="toolbar"><label for="search">Find ticker <input id="search" type="search" placeholder="Ticker or company" autocomplete="off"></label><span id="count" aria-live="polite"></span></div>
-<div class="table-scroll"><table id="research-table"><thead><tr><th scope="col"><button data-sort="0">Ticker <span data-sort-indicator aria-hidden="true">↕</span></button></th><th scope="col"><label class="column-filter" for="signal">Signal <select id="signal"><option value="">All</option></select></label></th><th scope="col" class="number">Price</th><th scope="col" class="number secondary">Fair value</th><th scope="col" class="number"><button data-sort="4" data-sort-type="number" data-initial-direction="desc">Conviction <span data-sort-indicator aria-hidden="true">↕</span></button></th><th scope="col">Evidence</th><th scope="col"><button data-sort="6">Analysis date <span data-sort-indicator aria-hidden="true">↕</span></button></th></tr></thead><tbody>
-{{ with site.GetPage "/research" }}{{ range .Sections.ByTitle }}{{ $latest := index (sort .RegularPages "Params.report_order" "desc") 0 }}{{ with $latest }}
-<tr data-signal="{{ .Params.security_signal }}"><td><a class="ticker" href="{{ .Parent.RelPermalink }}">{{ .Params.ticker }}</a><span class="company">{{ .Title }}</span></td>
-<td><span class="signal {{ if eq .Params.security_signal "PENDING_REFRESH" }}warning{{ end }}">{{ replace .Params.security_signal "_" " " }}</span></td>
-<td class="number">{{ with .Params.price }}${{ printf "%.2f" (float .) }}{{ else }}—{{ end }}</td>
-<td class="number secondary">{{ if and (eq .Params.instrument_type "OPERATING_COMPANY") (not (hasPrefix (string .Params.probability_weighted_fv) "N/A")) }}${{ .Params.probability_weighted_fv }}{{ else }}—{{ end }}</td>
-<td class="number">{{ if eq .Params.instrument_type "OPERATING_COMPANY" }}{{ if hasPrefix (string .Params.conviction_score) "N/A" }}—{{ else }}{{ .Params.conviction_score }}{{ end }}{{ else }}Fund{{ end }}</td>
-<td class="muted">{{ if eq .Params.evidence_status "INCOMPLETE" }}Refresh needed{{ else }}See caveats{{ end }}</td><td class="date">{{ .Date.Format "2006-01-02" }}</td></tr>
-{{ end }}{{ end }}{{ end }}
-</tbody></table></div>
+{{ $latest := slice }}
+{{ with site.GetPage "/research" }}{{ range .Sections }}{{ with index (sort .RegularPages "Params.report_order" "desc") 0 }}{{ $latest = $latest | append . }}{{ end }}{{ end }}{{ end }}
+{{ $companies := where $latest "Params.instrument_type" "OPERATING_COMPANY" }}
+{{ $latest = $companies }}
+<main id="content" class="research-desk">
+  <header class="desk-heading"><div><p class="eyebrow">THE BOB RESEARCH LIBRARY</p><h1>Stock research.<br><span>The reasoning behind the signal.</span></h1><p class="desk-description">Explore individual company theses and valuation models.<br>Every view comes with dated evidence, assumptions and open questions.</p></div><a class="framework-link" href="{{ "framework/" | relURL }}">Explore the framework <span aria-hidden="true">↗</span></a></header>
+  <dl class="desk-stats"><div><dt>Research coverage</dt><dd>{{ len $latest }} <span>stocks</span></dd></div><div><dt>Operating companies</dt><dd>{{ len $companies }} <span>company analyses</span></dd></div><div><dt>Coverage policy</dt><dd>Stocks <span>only</span></dd></div><div><dt>Latest research</dt><dd class="stat-date">{{ with index (sort $latest "Date" "desc") 0 }}{{ .Date.Format "02 Jan 2006" }}{{ else }}—{{ end }}</dd></div></dl>
+  <section class="library" aria-labelledby="library-heading">
+    <div class="library-heading"><h2 id="library-heading">Research library</h2><p>Recorded observations. Read the evidence before the score.</p></div>
+    <div class="library-controls"><div class="view-switch" role="group" aria-label="Research type"><button type="button" data-kind="all" aria-pressed="true">All stocks <span>{{ len $latest }}</span></button></div><label class="ticker-search" for="search"><span class="sr-only">Find ticker or company</span><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Find ticker or company…" autocomplete="off"></label></div>
+    <div class="table-scroll"><table id="research-table"><caption class="sr-only">Latest dated research. Filter by signal and sort by conviction.</caption><thead><tr>
+      <th scope="col"><button type="button" data-sort="0">Company <span data-sort-indicator aria-hidden="true">↕</span></button></th>
+      <th scope="col"><label class="column-filter" for="signal">Signal <select id="signal"><option value="">All signals</option></select></label></th>
+      <th scope="col" class="number">Recorded price</th><th scope="col" class="number secondary">Weighted fair value</th>
+      <th scope="col" class="number"><button type="button" data-sort="4" data-sort-type="number" data-initial-direction="desc">Conviction <span data-sort-indicator aria-hidden="true">↕</span></button></th>
+      <th scope="col" class="evidence-column">Research coverage</th><th scope="col"><button type="button" data-sort="6">As of <span data-sort-indicator aria-hidden="true">↕</span></button></th>
+    </tr></thead><tbody>
+    {{ range sort $latest "Params.ticker" }}
+      {{ $company := eq .Params.instrument_type "OPERATING_COMPANY" }}
+      <tr data-signal="{{ .Params.security_signal }}" data-kind="{{ if $company }}company{{ else }}fund{{ end }}">
+      <td><a class="security-link" href="{{ .Parent.RelPermalink }}"><span class="ticker-mark" aria-hidden="true">{{ substr .Params.ticker 0 1 }}</span><span><strong class="ticker">{{ .Params.ticker }}</strong><span class="company">{{ replaceRE "^[A-Z0-9.]+\\s*[—–-]\\s*" "" .Title }}</span></span><span class="row-arrow" aria-hidden="true">↗</span></a></td>
+      <td><span class="signal signal-{{ lower .Params.security_signal }}">{{ replace .Params.security_signal "_" " " }}</span></td>
+      <td class="number">{{ with .Params.price }}${{ printf "%.2f" (float .) }}{{ else }}<span class="muted">—</span>{{ end }}</td>
+      <td class="number secondary">{{ if and $company (not (hasPrefix (string .Params.probability_weighted_fv) "N/A")) }}${{ .Params.probability_weighted_fv }}{{ else }}<span class="muted">—</span>{{ end }}</td>
+      <td class="number">{{ if and $company (not (hasPrefix (string .Params.conviction_score) "N/A")) }}<span class="conviction">{{ .Params.conviction_score }}</span>{{ else if $company }}<span class="muted">—</span>{{ else }}<span class="fund-label">Fund</span>{{ end }}</td>
+      <td class="evidence-column"><a class="coverage-label" href="{{ .Parent.RelPermalink }}#evidence-and-sources">{{ if eq .Params.evidence_status "INCOMPLETE" }}<span class="status-dot warning"></span>Refresh required{{ else if .Params.coverage }}<span class="status-dot warning"></span>Evidence gaps{{ else }}<span class="status-dot"></span>Read caveats{{ end }}</a></td><td class="date" data-sort-value="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "02 Jan 2006" }}</td></tr>
+    {{ end }}
+    </tbody></table></div>
+    <div id="empty-state" class="empty-state" hidden><h3>No matching research</h3><p>Try another ticker, signal or research type.</p><button id="clear-filters" type="button">Clear filters</button></div>
+    <div class="library-footer"><span id="count" role="status" aria-live="polite"></span><span>Prices are dated observations, not live quotes.</span></div>
+  </section>
+  <aside class="desk-note"><span class="note-icon" aria-hidden="true">↳</span><div><strong>A signal is the beginning of the research.</strong><p>Open a report for the thesis, score rationale, valuation assumptions, risks and missing evidence. Historical fund reports remain available by their existing direct links.</p></div></aside>
+</main>
 {{ end }}

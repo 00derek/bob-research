@@ -1,5 +1,12 @@
 {
-  "title": "DISK"
+  "title": "DISK",
+  "params": {
+    "sidebar": {
+      "exclude": true
+    }
+  }
 }
+
+
 
 

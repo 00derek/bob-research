@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import re
 import sys
+from report_contract import coverage_errors, PRIVATE_TEXT
 
 
 def check(root):
@@ -26,7 +27,8 @@ def check(root):
                 errors.append("Missing report fields: " + str(p))
             if not raw[end:].strip():
                 errors.append("Empty report: " + str(p))
-            if re.search(r"\b(?:portfolio|brokerage|account|IRA|cost basis|average.cost|shares held|reference.shares?|current held|inactive ticker|prior exit|exit fill|target remains unresolved)\b|/Users/|file://", raw, re.I):
+            errors.extend(f"{p}: {error}" for error in coverage_errors(params, raw[end:].strip()))
+            if PRIVATE_TEXT.search(raw):
                 errors.append("Private context in report: " + str(p))
         except (ValueError, KeyError, TypeError):
             errors.append("Invalid report metadata: " + str(p))

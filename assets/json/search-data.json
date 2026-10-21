@@ -1,0 +1,14 @@
+{{/* Index the latest report per security; dated revisions remain accessible in history. */}}
+{{- $output := dict -}}
+{{- with site.GetPage "/research" -}}
+  {{- range .Sections -}}
+    {{- with index (sort .RegularPages "Params.report_order" "desc") 0 -}}
+      {{- $data := partial "utils/fragments" (dict "context" . "type" "content") -}}
+      {{- $output = merge $output (dict .Parent.RelPermalink (dict "title" .Title "data" $data)) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- with site.GetPage "/framework" -}}
+  {{- $output = merge $output (dict .RelPermalink (dict "title" .Title "data" (partial "utils/fragments" (dict "context" . "type" "content")))) -}}
+{{- end -}}
+{{- $output | jsonify -}}

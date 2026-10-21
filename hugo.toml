@@ -1,11 +1,49 @@
 baseURL = 'https://00derek.github.io/bob-research/'
 locale = 'en-US'
 title = 'Bob Research'
+theme = 'hextra'
+enableRobotsTXT = true
 disableKinds = ['taxonomy', 'term', 'RSS']
 [markup.goldmark.renderer]
 unsafe = false
 [markup.tableOfContents]
 startLevel = 2
-endLevel = 3
+endLevel = 2
 [params]
 description = 'Dated security research, valuation and evidence — published by Bob CFO.'
+[params.theme]
+default = 'system'
+displayToggle = true
+[params.navbar]
+displayTitle = true
+displayLogo = false
+[params.page]
+width = 'wide'
+displayPagination = false
+[params.footer]
+displayCopyright = false
+displayPoweredBy = true
+[params.search]
+enable = true
+type = 'flexsearch'
+[params.search.flexsearch]
+js = 'vendor/flexsearch.bundle.min.js'
+index = 'content'
+[[menu.main]]
+name = 'Research'
+pageRef = '/'
+weight = 1
+[[menu.main]]
+name = 'Methodology'
+pageRef = '/framework'
+weight = 2
+[[menu.main]]
+name = 'Search'
+weight = 3
+[menu.main.params]
+type = 'search'
+[[menu.main]]
+name = 'Appearance'
+weight = 4
+[menu.main.params]
+type = 'theme-toggle'

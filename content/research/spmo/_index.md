@@ -1,5 +1,12 @@
 {
-  "title": "SPMO"
+  "title": "SPMO",
+  "params": {
+    "sidebar": {
+      "exclude": true
+    }
+  }
 }
+
+
 
 
