@@ -59,6 +59,7 @@ FUND_SECTIONS = (
 )
 STATUSES = {"DOCUMENTED", "PARTIAL", "GAP", "NOT_APPLICABLE"}
 KINDS = {"FRAMEWORK_ANALYSIS", "RECONSTRUCTED_RESEARCH"}
+FORMATS = {"framework-v1", "reader-v2"}
 
 
 def sections(instrument_type):
@@ -66,8 +67,12 @@ def sections(instrument_type):
 
 
 def coverage_errors(params, body):
-    if params.get("report_format") != "framework-v1":
+    report_format = params.get("report_format")
+    if report_format is None:
         return []  # Immutable legacy revisions retain their original format.
+    if report_format not in FORMATS:
+        return ["Unknown report format."]
+    reader = report_format == "reader-v2"
     errors = []
     expected = sections(params.get("instrument_type"))
     coverage = params.get("coverage")
@@ -76,21 +81,45 @@ def coverage_errors(params, body):
     if params.get("report_kind") not in KINDS:
         errors.append("Unknown framework report kind.")
     headings = re.findall(r"^## (.+)$", body, re.M)
-    if headings != [title for _, title in expected]:
+    if reader:
+        if (not headings or headings[0] != "Investment thesis" or
+                headings[-1] != "Evidence and sources" or
+                "Framework assessment" not in headings or len(set(headings)) != len(headings)):
+            errors.append("Reader report needs a unique Investment thesis first, Framework assessment, and Evidence and sources last.")
+        for field in ("company_name", "thesis_headline"):
+            value = params.get(field)
+            if not isinstance(value, str) or not value.strip() or "\n" in value:
+                errors.append(f"Reader report needs a one-line {field}.")
+    elif headings != [title for _, title in expected]:
         errors.append("Framework sections are missing, duplicated or out of order.")
     chunks = re.split(r"^## .+$", body, flags=re.M)[1:]
+    chapter_text = dict(zip(headings, chunks))
+    if reader:
+        for title in ("Investment thesis", "Framework assessment", "Evidence and sources"):
+            if len(chapter_text.get(title, "").strip()) < 80:
+                errors.append(f"{title} needs substantive explanation, not only a heading.")
     for index, ((key, title), entry) in enumerate(zip(expected, coverage)):
-        if not isinstance(entry, dict) or set(entry) != {"id", "status", "note"}:
+        required = {"id", "status", "note", "section"} if reader else {"id", "status", "note"}
+        if not isinstance(entry, dict) or set(entry) != required:
             errors.append(f"Invalid coverage record for {title}.")
             continue
         if entry["id"] != key or entry["status"] not in STATUSES or not isinstance(entry["note"], str) or not entry["note"].strip():
             errors.append(f"Invalid coverage status or explanation for {title}.")
-        if index < len(chunks):
-            text = chunks[index].strip()
+        if reader:
+            section = entry.get("section")
+            if not isinstance(section, str) or section not in chapter_text:
+                errors.append(f"{title} must link to an existing report section.")
+                continue
+            text = chapter_text[section].strip()
+        else:
+            text = chunks[index].strip() if index < len(chunks) else ""
+        if text:
             if len(text) < 80:
                 errors.append(f"{title} needs reasoning or an explicit evidence-gap explanation.")
             if entry["status"] in {"PARTIAL", "GAP"} and "Evidence gap:" not in text:
                 errors.append(f"{title} must disclose its evidence gap in the report body.")
+        else:
+            errors.append(f"{title} needs reasoning or an explicit evidence-gap explanation.")
     if not re.search(r"https?://", chunks[-1] if chunks else ""):
         errors.append("Evidence and sources needs publicly addressable source links.")
     return errors

@@ -1,0 +1,3 @@
+{{ if eq .Params.report_format "reader-v2" }}
+<aside class="report-outline" aria-label="Report outline"><div><p>In this report</p>{{ .TableOfContents }}</div></aside>
+{{ else }}{{ partial "toc.html" . }}{{ end }}

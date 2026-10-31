@@ -6,7 +6,30 @@
 
 **Version 5.2 Provisional | September 24, 2026**
 
-V5 is a value-first framework for growth and innovation investing. Valuation and business evidence decide whether an investment deserves capital and how much. Technical analysis helps time and pace execution; it does not define conviction.
+This framework asks whether a business can create enough value for each share to justify the price and the risk. Start by understanding how it earns money, why those earnings might grow, and what could prevent that growth. Then test whether the price leaves enough room for mistakes.
+
+The report should make that argument understandable before introducing scores. Explain the business, the evidence, the assumptions and their consequences in ordinary language. The detailed rules below make the assessment consistent and auditable.
+
+### How to read an investment case
+
+| Reader's question | What the analysis must establish | Framework connection |
+|---|---|---|
+| Why this business? | Who pays it, what they buy, why they choose it, and whether that advantage can last | Industry §4; fundamentals and growth architecture §5 |
+| How does growth benefit each share? | The path from demand to revenue, margins and cash, after investment needs, financing and dilution | Fundamentals §5; scenarios §6 |
+| Is the price attractive? | What the quoted price requires, what the scenarios assume, and the downside if the thesis disappoints | Valuation and reverse valuation §6 |
+| What could make the case wrong? | The strongest opposing explanation, evidence still missing, and observable conditions that would invalidate the thesis | Quality §5; credibility §7; exits §12 |
+| Why this assessment now? | Which evidence or price condition supports the signal, what prevents a stronger signal, and the next checkpoint | Catalysts §7; timing §8; entry/exit rules §§10–12 |
+| How much risk is appropriate? | Market conditions, loss exposure, concentration and verified account capacity | Macro §3; private authorization §§10–13 |
+
+Use the first five questions to organize public research. Personal capacity and trade authorization belong in the private decision record. A security signal never establishes that a trade occurred.
+
+### From evidence to a decision
+
+A useful explanation follows **finding → evidence → effect on the investment case → framework consequence**. For example, growth funded by repeated share issuance may increase company revenue while limiting earnings per share. The report should explain that effect in the business discussion, reflect it in scenario share counts, and show its consequence for the financial assessment and valuation. A high growth score alone would leave the argument unfinished.
+
+A **score** summarizes a reasoned assessment under a rubric. A **gate** is a required condition that can prevent an action. An **assumption** is a model input, not a reported fact. **Fair value** is an estimate conditional on those inputs. **Conviction** combines four scores; it is not a probability of profit. Explain these terms on first use where they affect the conclusion.
+
+For report structure, examples and revision discipline, use `bob/report-writing.md`. The public authoring schema and review process are in `bob/REPORTS.md`. Editorial guidance revised October 28, 2026; the investment-policy version and numerical rules below remain V5.2 provisional.
 
 The numerical thresholds are provisional pending native V5 three-, six-, and twelve-month outcomes. The required 60-day migration replay is documented in `docs/Framework-V5-Provisional-Audit-2026-08-21.md`. V4.6 is preserved at `Archive/2026-08/DerekInvestmentFramework-V4.6-2026-08-24.md`; V5.0 is preserved at `Archive/2026-08/DerekInvestmentFramework-V5.0-2026-08-26.md`; V5.1 is preserved at `Archive/2026-09/DerekInvestmentFramework-V5.1-2026-09-24.md`.
 
@@ -61,6 +84,8 @@ Position size, action, and monitoring map
 
 ## 2. Required analysis sequence
 
+The research sequence collects and tests evidence before reaching a decision. The finished report presents the resulting argument in reading order: thesis, business evidence, price and valuation, risks, then the assessment and supporting detail. It should not recount the research process.
+
 Every ticker review must first classify the instrument as `OPERATING_COMPANY`, `BROAD_MARKET_CORE`, `SECTOR_OR_FACTOR_FUND`, or `CONCENTRATED_THEMATIC_FUND`, then complete the applicable path in order:
 
 1. Macro context and direct transmission to the company or vehicle
@@ -78,6 +103,8 @@ If the valuation predates the latest earnings release or a material company even
 ---
 
 ## 3. Macro environment — separate `/25`
+
+Explain the company-specific effect first: for example, which customer budgets, borrowing costs or production inputs change. Then show how that evidence affects the macro assessment and permitted risk. A list of economic indicators without a business consequence does not explain the investment case.
 
 Score each factor `/5`:
 
@@ -105,6 +132,8 @@ Market direction is reported, but it does not create a second multiplier that du
 
 ## 4. Industry quality — `/20`
 
+Explain who has pricing power, whether demand can outlast the current cycle, and how new supply or competitors could change returns. Connect those findings to the company's sales and margin assumptions. Show the component reasoning once in the supporting assessment.
+
 | Component | Weight | Questions |
 |---|---:|---|
 | Structural demand and market growth | `/6` | Is demand durable, growing, and supported by observable adoption? |
@@ -119,6 +148,8 @@ An industry score informs conviction. It blocks capital only when the industry t
 ---
 
 ## 5. Fundamentals — `/30`
+
+Describe how the company makes money before discussing its score. Follow growth through costs, reinvestment, financing and dilution to cash and earnings per share. Separate reported results, management guidance and analyst assumptions; identify the evidence that supports or challenges each major forecast.
 
 | Component | Weight | Evidence required |
 |---|---:|---|
@@ -161,6 +192,8 @@ The gate is re-evaluated before **every** build and after every material fundame
 ---
 
 ## 6. Valuation and vehicle analysis
+
+Explain the price question in words before presenting the calculation. State the quoted price and date, the model's date and forecast horizon, and the assumptions that most influence value. Each scenario needs a recognizable business outcome. Explain both upside and downside, and show how sensitive the conclusion is to the assumptions carrying the thesis.
 
 ### Operating-company valuation — `/30`
 
@@ -229,6 +262,8 @@ A fund trim must be attributable to an allocation cap, look-through valuation co
 
 ## 7. Catalysts and ordinary narrative — `/10`
 
+An event matters when it can test or change an operating assumption, valuation or risk. State what evidence the event could provide and what would change the assessment. An announcement without a measurable business effect does not automatically raise the forecast.
+
 | Component | Weight |
 |---|---:|
 | Specific, time-bound company catalysts | `/4` |
@@ -255,6 +290,8 @@ Classify `PASS`, `PENDING`, or `FAIL`:
 
 ## 8. Technical timing — separate `/25`
 
+Explain price behavior only to the extent it changes entry timing, pacing or a risk level. Keep the business thesis and its valuation clear even when timing evidence is incomplete. Translate indicator names into their decision consequence before listing technical values.
+
 | Component | Weight | Purpose |
 |---|---:|---|
 | Price structure and support quality | `/7` | Define accumulation zones, invalidation, and supply overhead |
@@ -269,6 +306,8 @@ Technical scoring never changes fair value or underlying conviction. The single 
 ---
 
 ## 9. Conviction score — `/90`
+
+Present the conclusion and its reasons before the total. In the detailed assessment, connect each component to the evidence already discussed and explain what prevents a higher score. Do not convert a score into a success percentage or use precise totals to conceal unresolved inputs.
 
 ```text
 Conviction /90 = Valuation /30
@@ -556,6 +595,14 @@ thesis_status: INTACT | CHALLENGED | INVALIDATED
 ```
 
 The body must explain every applicable score, scenario or vehicle test, gate, entry/exit level, missing datum, signal, and authorization. Highest close, live floor candidates, actual open risk, sector/correlation totals, and signal-reference shares live only in the portfolio ledger; do not duplicate them as ticker-owned state. A headline score or gate without evidence is invalid.
+
+### Report explanation and evidence coverage
+
+Lead the private and public bodies with a coherent current thesis, its most important dependency, and the dated assessment. Public prose follows `bob/report-writing.md` and `bob/REPORTS.md`; private prose adds the separate authorization and account-risk explanation. Structured fields remain available for calculations and audit.
+
+Every framework criterion must remain traceable to company-specific reasoning. The report's **Framework assessment** connects each criterion to a finding, its supporting evidence and its effect on the signal. Full sub-score reasoning and model assumptions may follow the main narrative; they cannot be replaced by PASS labels or a short summary.
+
+On updates, integrate still-valid evidence with its original date. Describe meaningful changes briefly, and keep superseded conclusions in immutable dated history. Do not repeatedly paste old assessments under every chapter. If an evidence conflict changes the conclusion, expose it beside that conclusion and resolve it or state what remains unknown. Material uncertainty must remain visible even when supporting calculations are placed later in the report.
 
 ---
 

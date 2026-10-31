@@ -19,7 +19,7 @@
     {{ range sort $latest "Params.ticker" }}
       {{ $company := eq .Params.instrument_type "OPERATING_COMPANY" }}
       <tr data-signal="{{ .Params.security_signal }}" data-kind="{{ if $company }}company{{ else }}fund{{ end }}">
-      <td><a class="security-link" href="{{ .Parent.RelPermalink }}"><span class="ticker-mark" aria-hidden="true">{{ substr .Params.ticker 0 1 }}</span><span><strong class="ticker">{{ .Params.ticker }}</strong><span class="company">{{ replaceRE "^[A-Z0-9.]+\\s*[—–-]\\s*" "" .Title }}</span></span><span class="row-arrow" aria-hidden="true">↗</span></a></td>
+      <td><a class="security-link" href="{{ .Parent.RelPermalink }}"><span class="ticker-mark" aria-hidden="true">{{ substr .Params.ticker 0 1 }}</span><span><strong class="ticker">{{ .Params.ticker }}</strong><span class="company">{{ .Params.company_name | default (replaceRE "^[A-Z0-9.]+\\s*[—–-]\\s*" "" .Title) }}</span></span><span class="row-arrow" aria-hidden="true">↗</span></a></td>
       <td><span class="signal signal-{{ lower .Params.security_signal }}">{{ replace .Params.security_signal "_" " " }}</span></td>
       <td class="number">{{ with .Params.price }}${{ printf "%.2f" (float .) }}{{ else }}<span class="muted">—</span>{{ end }}</td>
       <td class="number secondary">{{ if and $company (not (hasPrefix (string .Params.probability_weighted_fv) "N/A")) }}${{ .Params.probability_weighted_fv }}{{ else }}<span class="muted">—</span>{{ end }}</td>

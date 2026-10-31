@@ -1,6 +1,6 @@
 {{ define "main" }}
 <div class="reading-layout hextra-max-page-width">
-{{ partial "toc.html" . }}
+{{ partial "report-toc.html" . }}
 <main id="content" class="report-main">
 {{ if eq .Section "research" }}{{ partial "report.html" . }}{{ else }}<header class="report-heading"><a class="back-link" href="{{ site.Home.RelPermalink }}">← Research library</a><p class="eyebrow">THE METHODOLOGY</p><h1>{{ .Title }}</h1><p class="muted">The framework behind the research, including its provisional rules and evidence requirements.</p></header><article class="content">{{ .Content | replaceRE "^<h1[^>]*>.*?</h1>" "" | safeHTML }}</article>{{ end }}
 </main></div>

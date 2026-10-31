@@ -1,10 +1,19 @@
-<header class="report-heading"><a class="back-link" href="{{ site.Home.RelPermalink }}">← Research library</a><div class="report-kicker"><p class="eyebrow">{{ if eq .Params.instrument_type "OPERATING_COMPANY" }}COMPANY RESEARCH{{ else }}FUND RESEARCH{{ end }}</p><span class="signal signal-{{ lower .Params.security_signal }}">{{ replace .Params.security_signal "_" " " }}</span></div><h1>{{ .Title }}</h1><p class="report-dates">Research {{ .Date.Format "02 Jan 2006" }} <span>·</span> Data through {{ .Params.data_through }} <span>·</span> {{ .ReadingTime }} min read</p></header>
-<dl class="report-metrics"><div><dt>Recorded price</dt><dd>{{ with .Params.price }}${{ printf "%.2f" (float .) }}{{ else }}Unavailable{{ end }}</dd><small>{{ .Params.price_as_of }}</small></div>
-{{ if eq .Params.instrument_type "OPERATING_COMPANY" }}<div><dt>Weighted fair value</dt><dd>{{ if hasPrefix (string .Params.probability_weighted_fv) "N/A" }}Pending refresh{{ else }}${{ .Params.probability_weighted_fv }}{{ end }}</dd><small>Model {{ .Params.valuation_as_of }}</small></div><div><dt>Conviction</dt><dd>{{ .Params.conviction_score }}</dd><small>Four component scores</small></div><div><dt>Business quality</dt><dd>{{ $quality := .Params.business_quality_gate }}{{ range .Params.evidence_notes }}{{ if hasPrefix . "Business-quality gate discrepancy" }}{{ $quality = "UNRESOLVED" }}{{ end }}{{ end }}{{ $quality }}</dd><small>Credibility {{ .Params.credibility_risk_gate }}</small></div>
-{{ else }}<div><dt>Vehicle integrity</dt><dd>{{ .Params.vehicle_integrity_gate }}</dd><small>Mandate and structure</small></div><div><dt>Look-through valuation</dt><dd>{{ .Params.lookthrough_valuation_status }}</dd><small>Constituent evidence</small></div><div><dt>Vehicle role</dt><dd class="metric-small">{{ replace .Params.vehicle_role "_" " " }}</dd><small>Separate fund framework</small></div>{{ end }}</dl>
+{{ $reader := eq .Params.report_format "reader-v2" }}
+<div class="{{ if $reader }}reader-report{{ end }}">
+<header class="report-heading">
+  <a class="back-link" href="{{ site.Home.RelPermalink }}">← Research library</a>
+  <div class="report-kicker"><p class="eyebrow">{{ if eq .Params.instrument_type "OPERATING_COMPANY" }}COMPANY RESEARCH{{ else }}FUND RESEARCH{{ end }}</p><span class="signal signal-{{ lower .Params.security_signal }}">{{ replace .Params.security_signal "_" " " }}</span></div>
+  {{ if $reader }}<h1>{{ .Params.company_name }} <span class="report-ticker">{{ .Params.ticker }}</span></h1><p class="thesis-headline">{{ .Params.thesis_headline }}</p>{{ else }}<h1>{{ .Title }}</h1>{{ end }}
+  <p class="report-dates">Research {{ .Date.Format "02 Jan 2006" }} <span>·</span> Data through {{ .Params.data_through }} <span>·</span> {{ .ReadingTime }} min read</p>
+  {{ if and $reader (eq .Params.report_kind "RECONSTRUCTED_RESEARCH") }}<p class="editorial-note">Editorial reconstruction of dated research. No new market research was performed.</p>{{ end }}
+</header>
+{{ if not $reader }}
+{{ partial "report-metrics.html" . }}
 <div class="research-notice"><strong>{{ if eq .Params.report_kind "RECONSTRUCTED_RESEARCH" }}Dated research, with evidence gaps{{ else if eq .Params.evidence_status "INCOMPLETE" }}Research refresh required{{ else }}Read the evidence and limitations{{ end }}</strong><p>{{ .Params.publication_note }}{{ if eq .Params.evidence_status "INCOMPLETE" }} Research remains incomplete; read the outstanding evidence issues before relying on this assessment.{{ end }}</p></div>
+{{ end }}
 {{ with .Params.evidence_notes }}<details class="evidence-notes" open><summary>Source and consistency notes ({{ len . }})</summary><ul>{{ range . }}<li>{{ . }}</li>{{ end }}</ul></details>{{ end }}
-{{ with .Params.coverage }}<details class="evidence-notes"><summary>Framework coverage · {{ len . }} sections</summary><p class="muted">Coverage describes the available reasoning. It is not independent verification of the evidence.</p><ul>{{ range . }}<li><strong>{{ humanize .id }}</strong> — {{ humanize (lower .status) }}. {{ .note }}</li>{{ end }}</ul></details>{{ end }}
 <details class="mobile-toc"><summary>In this report</summary>{{ .TableOfContents }}</details>
 <article class="content report-content">{{ .Content }}</article>
+{{ with .Params.coverage }}<details class="evidence-notes framework-coverage"><summary>Framework coverage · {{ len . }} criteria</summary><p class="muted">Coverage describes the available reasoning. It is not independent verification of the evidence.</p><ul>{{ range . }}<li><strong>{{ humanize .id }}</strong> — {{ humanize (lower .status) }}. {{ .note }}{{ with .section }} <a href="#{{ . | anchorize }}">Read {{ . }} →</a>{{ end }}</li>{{ end }}</ul></details>{{ end }}
 <div class="report-footnote"><span>{{ .Params.framework_version }}</span><a href="{{ .Permalink }}">Permanent dated report ↗</a></div>
+</div>
