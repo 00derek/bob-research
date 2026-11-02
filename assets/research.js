@@ -3,26 +3,18 @@
   if (!table) return;
   const rows = [...table.tBodies[0].rows];
   const search = document.querySelector('#search'), signal = document.querySelector('#signal');
-  const kinds = [...document.querySelectorAll('.view-switch [data-kind]')];
-  let kind = 'all';
   [...new Set(rows.map(r => r.dataset.signal))].sort().forEach(value => {
     if (value) signal.add(new Option(value.replaceAll('_', ' '), value));
   });
   function filter() {
     const query = search.value.trim().toLowerCase();
-    rows.forEach(row => { row.hidden = !row.cells[0].textContent.toLowerCase().includes(query) || (signal.value && row.dataset.signal !== signal.value) || (kind !== 'all' && row.dataset.kind !== kind); });
+    rows.forEach(row => { row.hidden = !row.cells[0].textContent.toLowerCase().includes(query) || (signal.value && row.dataset.signal !== signal.value); });
     const visible = rows.filter(r => !r.hidden).length;
     document.querySelector('#count').textContent = `${visible} of ${rows.length} reports`;
     document.querySelector('#empty-state').hidden = visible !== 0;
   }
-  kinds.forEach(button => button.addEventListener('click', () => {
-    kind = button.dataset.kind;
-    kinds.forEach(other => other.setAttribute('aria-pressed', String(other === button)));
-    filter();
-  }));
   document.querySelector('#clear-filters').addEventListener('click', () => {
-    search.value = ''; signal.value = ''; kind = 'all';
-    kinds.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.kind === 'all')));
+    search.value = ''; signal.value = '';
     filter(); search.focus();
   });
   search.addEventListener('input', filter); signal.addEventListener('change', filter); filter();

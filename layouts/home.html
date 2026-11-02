@@ -3,12 +3,14 @@
 {{ with site.GetPage "/research" }}{{ range .Sections }}{{ with index (sort .RegularPages "Params.report_order" "desc") 0 }}{{ $latest = $latest | append . }}{{ end }}{{ end }}{{ end }}
 {{ $companies := where $latest "Params.instrument_type" "OPERATING_COMPANY" }}
 {{ $latest = $companies }}
+{{ $priceDates := slice }}
+{{ range $latest }}{{ with .Params.price_as_of }}{{ $priceDates = $priceDates | append . }}{{ end }}{{ end }}
+{{ $priceDates = uniq $priceDates }}
 <main id="content" class="research-desk">
-  <header class="desk-heading"><div><p class="eyebrow">THE BOB RESEARCH LIBRARY</p><h1>Stock research.<br><span>The reasoning behind the signal.</span></h1><p class="desk-description">Explore individual company theses and valuation models.<br>Every view comes with dated evidence, assumptions and open questions.</p></div><a class="framework-link" href="{{ "framework/" | relURL }}">Explore the framework <span aria-hidden="true">↗</span></a></header>
-  <dl class="desk-stats"><div><dt>Research coverage</dt><dd>{{ len $latest }} <span>stocks</span></dd></div><div><dt>Operating companies</dt><dd>{{ len $companies }} <span>company analyses</span></dd></div><div><dt>Coverage policy</dt><dd>Stocks <span>only</span></dd></div><div><dt>Latest research</dt><dd class="stat-date">{{ with index (sort $latest "Date" "desc") 0 }}{{ .Date.Format "02 Jan 2006" }}{{ else }}—{{ end }}</dd></div></dl>
+  <header class="desk-heading"><div><p class="eyebrow">INDEPENDENT EQUITY RESEARCH</p><h1>The reasoning behind the signal.</h1><p class="desk-description">Company theses, valuation models and the evidence that could change our view.</p></div><a class="framework-link" href="{{ "framework/" | relURL }}">The methodology <span aria-hidden="true">↗</span></a></header>
+  <dl class="desk-meta"><div><dt>Coverage</dt><dd>{{ len $latest }} companies</dd></div><div><dt>Latest research</dt><dd>{{ with index (sort $latest "Date" "desc") 0 }}{{ .Date.Format "02 Jan 2006" }}{{ else }}—{{ end }}</dd></div><div><dt>Prices</dt><dd>{{ if eq (len $priceDates) 1 }}{{ time.Format "02 Jan 2006" (index $priceDates 0) }} close{{ else }}Dated in each report{{ end }}</dd></div></dl>
   <section class="library" aria-labelledby="library-heading">
-    <div class="library-heading"><h2 id="library-heading">Research library</h2><p>Recorded observations. Read the evidence before the score.</p></div>
-    <div class="library-controls"><div class="view-switch" role="group" aria-label="Research type"><button type="button" data-kind="all" aria-pressed="true">All stocks <span>{{ len $latest }}</span></button></div><label class="ticker-search" for="search"><span class="sr-only">Find ticker or company</span><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Find ticker or company…" autocomplete="off"></label></div>
+    <div class="library-controls"><h2 id="library-heading">Research library</h2><label class="ticker-search" for="search"><span class="sr-only">Find ticker or company</span>{{ partial "utils/icon.html" (dict "name" "search" "attributes" "height=16 aria-hidden=true") }}<input id="search" type="search" placeholder="Ticker or company" autocomplete="off"></label></div>
     <div class="table-scroll"><table id="research-table"><caption class="sr-only">Latest dated research. Filter by signal and sort by conviction.</caption><thead><tr>
       <th scope="col"><button type="button" data-sort="0">Company <span data-sort-indicator aria-hidden="true">↕</span></button></th>
       <th scope="col"><label class="column-filter" for="signal">Signal <select id="signal"><option value="">All signals</option></select></label></th>
@@ -19,15 +21,15 @@
     {{ range sort $latest "Params.ticker" }}
       {{ $company := eq .Params.instrument_type "OPERATING_COMPANY" }}
       <tr data-signal="{{ .Params.security_signal }}" data-kind="{{ if $company }}company{{ else }}fund{{ end }}">
-      <td><a class="security-link" href="{{ .Parent.RelPermalink }}"><span class="ticker-mark" aria-hidden="true">{{ substr .Params.ticker 0 1 }}</span><span><strong class="ticker">{{ .Params.ticker }}</strong><span class="company">{{ .Params.company_name | default (replaceRE "^[A-Z0-9.]+\\s*[—–-]\\s*" "" .Title) }}</span></span><span class="row-arrow" aria-hidden="true">↗</span></a></td>
+      <td><a class="security-link" href="{{ .Parent.RelPermalink }}"><span><strong class="ticker">{{ .Params.ticker }}</strong><span class="company">{{ .Params.company_name | default (replaceRE "^[A-Z0-9.]+\\s*[—–-]\\s*" "" .Title) }}</span></span><span class="row-arrow" aria-hidden="true">↗</span></a></td>
       <td><span class="signal signal-{{ lower .Params.security_signal }}">{{ replace .Params.security_signal "_" " " }}</span></td>
-      <td class="number">{{ with .Params.price }}${{ printf "%.2f" (float .) }}{{ else }}<span class="muted">—</span>{{ end }}</td>
-      <td class="number secondary">{{ if and $company (not (hasPrefix (string .Params.probability_weighted_fv) "N/A")) }}${{ .Params.probability_weighted_fv }}{{ else }}<span class="muted">—</span>{{ end }}</td>
+      <td class="number">{{ with .Params.price }}${{ lang.FormatNumber 2 (float .) }}{{ else }}<span class="muted">—</span>{{ end }}</td>
+      <td class="number secondary">{{ if and $company .Params.probability_weighted_fv (not (hasPrefix (string .Params.probability_weighted_fv) "N/A")) }}${{ lang.FormatNumber 2 (float .Params.probability_weighted_fv) }}{{ else }}<span class="muted">—</span>{{ end }}</td>
       <td class="number">{{ if and $company (not (hasPrefix (string .Params.conviction_score) "N/A")) }}<span class="conviction">{{ .Params.conviction_score }}</span>{{ else if $company }}<span class="muted">—</span>{{ else }}<span class="fund-label">Fund</span>{{ end }}</td>
       <td class="evidence-column"><a class="coverage-label" href="{{ .Parent.RelPermalink }}#evidence-and-sources">{{ if eq .Params.evidence_status "INCOMPLETE" }}<span class="status-dot warning"></span>Refresh required{{ else if .Params.coverage }}<span class="status-dot warning"></span>Evidence gaps{{ else }}<span class="status-dot"></span>Read caveats{{ end }}</a></td><td class="date" data-sort-value="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "02 Jan 2006" }}</td></tr>
     {{ end }}
     </tbody></table></div>
-    <div id="empty-state" class="empty-state" hidden><h3>No matching research</h3><p>Try another ticker, signal or research type.</p><button id="clear-filters" type="button">Clear filters</button></div>
+    <div id="empty-state" class="empty-state" hidden><h3>No matching research</h3><p>Try another ticker, company or signal.</p><button id="clear-filters" type="button">Clear filters</button></div>
     <div class="library-footer"><span id="count" role="status" aria-live="polite"></span><span>Prices are dated observations, not live quotes.</span></div>
   </section>
   <aside class="desk-note"><span class="note-icon" aria-hidden="true">↳</span><div><strong>A signal is the beginning of the research.</strong><p>Open a report for the thesis, score rationale, valuation assumptions, risks and missing evidence. Historical fund reports remain available by their existing direct links.</p></div></aside>
